@@ -42,6 +42,7 @@
         .log-line { margin: 2px 0; }
         .log-ok { color: var(--term-green); font-weight: bold; }
         .log-warn { color: var(--term-red); font-weight: bold; }
+        .log-err { color: var(--term-red); font-weight: bold; background: rgba(255, 85, 85, 0.1); padding: 2px 5px; }
 
         /* --- DESKTOP --- */
         #desktop {
@@ -163,11 +164,11 @@
     </div>
 
     <script type="module">
-        // Import Firebase from Google CDN
+        // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIG DARI USER
+        // CONFIG (SESUAI PROJECT KAMU)
         const firebaseConfig = {
             apiKey: "AIzaSyDxZvpKrQ236bCTOLSzoMrHRR8BINTI-Sw",
             authDomain: "atlantiscorp-af211.firebaseapp.com",
@@ -188,12 +189,15 @@
         const logEl = document.getElementById('boot-log');
         const log = (msg, status='OK') => {
             logEl.style.display = 'block';
-            const color = status === 'OK' ? 'log-ok' : 'log-warn';
+            let color = 'log-ok';
+            if(status === 'WARN') color = 'log-warn';
+            if(status === 'ERR') color = 'log-err';
+            
             logEl.innerHTML += `<div class="log-line">[ <span class="${color}">${status}</span> ] ${msg}</div>`;
             logEl.scrollTop = logEl.scrollHeight;
         };
 
-        /* --- VIRTUAL FILESYSTEM (LINKED TO FIREBASE) --- */
+        /* --- VIRTUAL FILESYSTEM (FIXED FOR FIREBASE) --- */
         const FS = {
             data: {}, 
             
@@ -201,38 +205,56 @@
                 try {
                     log("Connecting to Atlantis Cloud...");
                     const snapshot = await get(child(dbRef, 'filesystem'));
+                    
                     if (snapshot.exists()) {
-                        this.data = snapshot.val();
+                        const rawData = snapshot.val();
+                        // FIX: Parse data jika berbentuk string
+                        if(typeof rawData === 'string') {
+                            this.data = JSON.parse(rawData);
+                        } else {
+                            this.data = rawData;
+                        }
                         log("File System loaded from Cloud.");
                     } else {
-                        log("No cloud data found. Initializing default...", "WARN");
-                        this.reset();
+                        log("Cloud empty. Initializing Default OS...", "WARN");
+                        await this.reset(); // Tunggu sampai reset & save selesai
                     }
                 } catch (error) {
-                    console.error(error);
-                    log("Failed to connect to Firebase. Offline Mode.", "ERR");
-                    this.reset(); // Fallback
+                    console.error("Firebase Error:", error);
+                    if(error.code === 'PERMISSION_DENIED') {
+                        log("Access Denied! Check Rules.", "ERR");
+                    } else {
+                        log("Failed to connect. Offline Mode.", "ERR");
+                    }
+                    this.setupDefaultData(); // Fallback ke offline tanpa save
                 }
             },
 
-            reset() {
-                this.data = {
+            setupDefaultData() {
+                 this.data = {
                     '/': { type: 'dir', children: ['home', 'etc'] },
                     '/home': { type: 'dir', children: ['garuda'] },
                     '/home/garuda': { type: 'dir', children: ['Documents', 'readme.txt'] },
-                    '/home/garuda/Documents': { type: 'dir', children: ['cloud_secret.txt'] },
-                    '/home/garuda/readme.txt': { type: 'file', content: 'Connected to Firebase!\nAny changes here are saved to the cloud.' },
-                    '/home/garuda/Documents/cloud_secret.txt': { type: 'file', content: 'Data ini tersimpan di server Google.' },
+                    '/home/garuda/Documents': { type: 'dir', children: ['secret.txt'] },
+                    '/home/garuda/readme.txt': { type: 'file', content: 'Welcome to Garuda Cloud!\n\nStatus: Online (Synced)' },
+                    '/home/garuda/Documents/secret.txt': { type: 'file', content: 'Project by Hiro.' },
                     '/etc': { type: 'dir', children: [] }
                 };
-                this.save();
             },
 
-            // Save to Firebase on every change
+            async reset() {
+                this.setupDefaultData();
+                await this.save();
+            },
+
+            // Save to Firebase (FIXED: STRINGIFY DATA)
             save() {
-                set(ref(db, 'filesystem'), this.data)
+                // Kita bungkus data jadi String agar karakter '/' tidak dianggap key oleh Firebase
+                const dataString = JSON.stringify(this.data);
+                
+                return set(ref(db, 'filesystem'), dataString)
                     .then(() => console.log("Cloud sync: Success"))
-                    .catch((err) => console.error("Cloud sync: Failed", err));
+                    .catch((err) => console.warn("Cloud sync failed:", err));
             },
 
             getNode(path) {
@@ -302,7 +324,7 @@
                 this.save();
                 return true;
             },
-
+            
             cp(cwd, src, dest) {
                 const srcPath = this.resolve(cwd, src);
                 const srcNode = this.getNode(srcPath);
@@ -316,14 +338,11 @@
                 const srcNode = this.getNode(srcPath);
                 if(!srcNode) return 'mv: source not found';
                 
-                // Delete old ref
                 const parent = this.getNode(this.getParent(srcPath));
                 parent.children = parent.children.filter(c => c !== srcPath.split('/').pop());
                 delete this.data[srcPath];
 
-                // Create new ref
                 const destPath = this.resolve(cwd, dest);
-                // Simple rename logic
                 const newParentPath = this.getParent(destPath);
                 const newParent = this.getNode(newParentPath);
                 if(newParent) {
@@ -406,7 +425,7 @@
                     const winData = this.windows.find(w => w.id === id);
                     this.windows = this.windows.filter(w => w.id !== id);
                     const stillRunning = this.windows.some(w => w.app === winData.app);
-                    this.updateDock(winData.app, stillRunning);
+                    if(winData) this.updateDock(winData.app, stillRunning);
                 }
             },
 
@@ -583,7 +602,7 @@
             }
         };
 
-        // --- EXPOSE TO WINDOW (KARENA MODULE SCOPE TERTUTUP) ---
+        // --- EXPOSE TO WINDOW ---
         window.FS = FS;
         window.WM = WM;
         window.Apps = Apps;
