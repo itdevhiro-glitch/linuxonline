@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garuda Linux - Cloud Edition (Firebase)</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- SYSTEM VARIABLES --- */
+        :root {
+            --bg-color: #0f0f15;
+            --win-bg: rgba(20, 21, 27, 0.85);
+            --win-border: rgba(255, 255, 255, 0.1);
+            --blur: 20px;
+            --primary: #c95690;
+            --accent: #00d6de;
+            --text: #e1e1e1;
+            --term-red: #ff5555;
+            --term-green: #50fa7b;
+            --font-ui: 'Fira Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; user-select: none; outline: none; }
+        
+        body {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            overflow: hidden; background-color: #000;
+            font-family: var(--font-ui); color: var(--text);
+        }
+
+        /* --- BOOT SCREEN --- */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: var(--font-mono); transition: opacity 0.5s;
+        }
+        .boot-log { width: 80%; max-width: 600px; text-align: left; font-size: 14px; color: #aaa; margin-top: 20px; display: none; }
+        .log-line { margin: 2px 0; }
+        .log-ok { color: var(--term-green); font-weight: bold; }
+        .log-warn { color: var(--term-red); font-weight: bold; }
+
+        /* --- DESKTOP --- */
+        #desktop {
+            width: 100%; height: 100%;
+            background: url('https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/forrest.png') center/cover no-repeat;
+            position: relative; display: none; opacity: 0; transition: opacity 1s;
+        }
+
+        #top-bar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 30px;
+            background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 10px; z-index: 5000; font-size: 13px;
+        }
+        .bar-left, .bar-right { display: flex; gap: 15px; align-items: center; }
+        .launcher-btn { color: var(--accent); font-size: 16px; cursor: pointer; padding: 2px 8px; }
+
+        /* --- WINDOW MANAGER --- */
+        .window {
+            position: absolute; min-width: 400px; min-height: 300px;
+            background: var(--win-bg); backdrop-filter: blur(var(--blur));
+            border-radius: 10px; border: 1px solid var(--win-border);
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 10px 40px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            opacity: 0; transform: scale(0.9);
+            transition: opacity 0.2s, transform 0.2s, top 0.1s, left 0.1s;
+            overflow: hidden;
+        }
+        .window.open { opacity: 1; transform: scale(1); }
+        .window.active { z-index: 100; border-color: rgba(201, 86, 144, 0.4); box-shadow: 0 0 0 1px rgba(201, 86, 144, 0.4), 0 15px 50px rgba(0,0,0,0.6); }
+        .window.minimized { opacity: 0; transform: scale(0.5) translateY(500px); pointer-events: none; transition: 0.4s; }
+
+        .title-bar {
+            height: 35px; background: rgba(255,255,255,0.03);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 12px; cursor: grab;
+        }
+        .title-bar:active { cursor: grabbing; }
+        .win-title { font-size: 13px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+        .win-controls { display: flex; gap: 8px; }
+        .ctrl-btn { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; transition: 0.1s; }
+        .ctrl-btn:hover { filter: brightness(1.2); }
+        .close { background: #ff5555; }
+        .min { background: #f1fa8c; }
+        .max { background: #50fa7b; }
+        .win-content { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+        /* --- DOCK --- */
+        #dock-container { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; z-index: 5000; }
+        #dock {
+            background: rgba(20, 20, 25, 0.8); backdrop-filter: blur(20px);
+            padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; gap: 10px; align-items: flex-end;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .dock-item {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center;
+            font-size: 1.5rem; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; color: #fff;
+        }
+        .dock-item:hover { transform: scale(1.2) translateY(-10px); margin: 0 10px; background: rgba(255,255,255,0.15); }
+        .dock-item.running::after {
+            content: ''; position: absolute; bottom: -6px; width: 6px; height: 6px;
+            background: var(--accent); border-radius: 50%; box-shadow: 0 0 5px var(--accent);
+        }
+
+        /* --- APPS --- */
+        .terminal-wrap { padding: 10px; font-family: 'JetBrains Mono'; font-size: 13px; height: 100%; overflow-y: auto; color: var(--text); background: rgba(10, 10, 15, 0.95); cursor: text; }
+        .cmd-line { display: flex; margin-top: 5px; }
+        .cmd-input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; flex: 1; margin-left: 8px; }
+
+        .dolphin-toolbar { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); }
+        .nav-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .path-bar { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 4px; flex: 1; font-size: 12px; font-family: var(--font-mono); }
+        .dolphin-view { flex: 1; padding: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); grid-auto-rows: 110px; gap: 10px; overflow-y: auto; }
+        .file-item { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.1s; text-align: center; }
+        .file-item:hover { background: rgba(255,255,255,0.1); }
+        .file-item.selected { background: rgba(201, 86, 144, 0.3); border: 1px solid rgba(201, 86, 144, 0.5); }
+        .file-icon { font-size: 2.8rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+        .file-name { font-size: 12px; word-break: break-all; line-height: 1.3; }
+
+        .kate-editor { width: 100%; height: 100%; background: #1e1e2e; color: #cdd6f4; border: none; padding: 15px; font-family: var(--font-mono); resize: none; font-size: 14px; }
+        .kate-status { height: 25px; background: #11111b; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: #a6adc8; justify-content: space-between; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="boot-screen">
+        <i class="fas fa-dragon fa-3x" style="color:var(--primary); margin-bottom: 20px; animation: pulse 2s infinite;"></i>
+        <div style="font-weight: 700; font-size: 24px;">GARUDA <span style="color:var(--accent)">CLOUD</span></div>
+        <div style="font-size:12px; color:#666; margin-top:5px;">Powered by Firebase</div>
+        <div class="boot-log" id="boot-log"></div>
+    </div>
+
+    <div id="desktop">
+        <div id="top-bar">
+            <div class="bar-left">
+                <div class="launcher-btn" onclick="Apps.launch('terminal')"><i class="fas fa-dragon"></i></div>
+                <div id="global-menu" style="font-weight: 600;">Desktop</div>
+            </div>
+            <div class="bar-right">
+                <div id="clock" style="font-weight:600; font-family: var(--font-mono);">12:00</div>
+            </div>
+        </div>
+
+        <div id="window-area" style="position:absolute; top:30px; bottom:0; width:100%;"></div>
+
+        <div id="dock-container">
+            <div id="dock">
+                <div class="dock-item" onclick="Apps.launch('terminal')" title="Alacritty"><i class="fas fa-terminal" style="color:#50fa7b"></i></div>
+                <div class="dock-item" onclick="Apps.launch('dolphin')" title="Dolphin"><i class="fas fa-folder-open" style="color:#8be9fd"></i></div>
+                <div class="dock-item" onclick="Apps.launch('kate')" title="Kate"><i class="fas fa-pen" style="color:#ffb86c"></i></div>
+                <div class="dock-item" onclick="location.reload()" title="Reboot"><i class="fas fa-power-off" style="color:#ff5555"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase from Google CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // CONFIG DARI USER
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxZvpKrQ236bCTOLSzoMrHRR8BINTI-Sw",
+            authDomain: "atlantiscorp-af211.firebaseapp.com",
+            databaseURL: "https://atlantiscorp-af211-default-rtdb.firebaseio.com",
+            projectId: "atlantiscorp-af211",
+            storageBucket: "atlantiscorp-af211.firebasestorage.app",
+            messagingSenderId: "36612462515",
+            appId: "1:36612462515:web:7683c3b686d308450addc6",
+            measurementId: "G-NE54KLXY3Z"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db);
+        
+        // --- LOGGER UTILS ---
+        const logEl = document.getElementById('boot-log');
+        const log = (msg, status='OK') => {
+            logEl.style.display = 'block';
+            const color = status === 'OK' ? 'log-ok' : 'log-warn';
+            logEl.innerHTML += `<div class="log-line">[ <span class="${color}">${status}</span> ] ${msg}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        };
+
+        /* --- VIRTUAL FILESYSTEM (LINKED TO FIREBASE) --- */
+        const FS = {
+            data: {}, 
+            
+            async init() {
+                try {
+                    log("Connecting to Atlantis Cloud...");
+                    const snapshot = await get(child(dbRef, 'filesystem'));
+                    if (snapshot.exists()) {
+                        this.data = snapshot.val();
+                        log("File System loaded from Cloud.");
+                    } else {
+                        log("No cloud data found. Initializing default...", "WARN");
+                        this.reset();
+                    }
+                } catch (error) {
+                    console.error(error);
+                    log("Failed to connect to Firebase. Offline Mode.", "ERR");
+                    this.reset(); // Fallback
+                }
+            },
+
+            reset() {
+                this.data = {
+                    '/': { type: 'dir', children: ['home', 'etc'] },
+                    '/home': { type: 'dir', children: ['garuda'] },
+                    '/home/garuda': { type: 'dir', children: ['Documents', 'readme.txt'] },
+                    '/home/garuda/Documents': { type: 'dir', children: ['cloud_secret.txt'] },
+                    '/home/garuda/readme.txt': { type: 'file', content: 'Connected to Firebase!\nAny changes here are saved to the cloud.' },
+                    '/home/garuda/Documents/cloud_secret.txt': { type: 'file', content: 'Data ini tersimpan di server Google.' },
+                    '/etc': { type: 'dir', children: [] }
+                };
+                this.save();
+            },
+
+            // Save to Firebase on every change
+            save() {
+                set(ref(db, 'filesystem'), this.data)
+                    .then(() => console.log("Cloud sync: Success"))
+                    .catch((err) => console.error("Cloud sync: Failed", err));
+            },
+
+            getNode(path) {
+                if(path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
+                return this.data[path] || null;
+            },
+
+            getParent(path) {
+                if (path === '/') return null;
+                const lastSlash = path.lastIndexOf('/');
+                if (lastSlash === 0) return '/'; 
+                return path.substring(0, lastSlash);
+            },
+            
+            resolve(current, target) {
+                if(!target) return current;
+                if(target.startsWith('/')) return target; 
+                if(target === '..') return this.getParent(current) || current;
+                if(target === '.') return current;
+                if(target.startsWith('~/')) return '/home/garuda' + target.substring(1);
+                if(target === '~') return '/home/garuda';
+                return (current === '/' ? '' : current) + '/' + target;
+            },
+
+            ls(path) {
+                const node = this.getNode(path);
+                return (node && node.type === 'dir') ? node.children : null;
+            },
+
+            mkdir(cwd, name) {
+                const path = this.resolve(cwd, name);
+                if(this.data[path]) return false;
+                const parentPath = this.getParent(path);
+                const parent = this.getNode(parentPath);
+                if(parent && parent.type === 'dir') {
+                    parent.children.push(path.split('/').pop());
+                    this.data[path] = { type: 'dir', children: [] };
+                    this.save();
+                    return true;
+                }
+                return false;
+            },
+
+            touch(cwd, name, content = '') {
+                const path = this.resolve(cwd, name);
+                const parentPath = this.getParent(path);
+                const parent = this.getNode(parentPath);
+                if(parent && parent.type === 'dir') {
+                    const fname = path.split('/').pop();
+                    if(!parent.children.includes(fname)) parent.children.push(fname);
+                    this.data[path] = { type: 'file', content: content };
+                    this.save();
+                    return true;
+                }
+                return false;
+            },
+
+            rm(cwd, name, recursive) {
+                const path = this.resolve(cwd, name);
+                const node = this.getNode(path);
+                if(!node) return 'No such file';
+                if(node.type === 'dir' && !recursive) return 'Is a directory';
+                
+                const parent = this.getNode(this.getParent(path));
+                parent.children = parent.children.filter(c => c !== path.split('/').pop());
+                delete this.data[path];
+                this.save();
+                return true;
+            },
+
+            cp(cwd, src, dest) {
+                const srcPath = this.resolve(cwd, src);
+                const srcNode = this.getNode(srcPath);
+                if(!srcNode) return 'cp: source not found';
+                if(srcNode.type === 'dir') return 'cp: directory copy not supported';
+                return this.touch(cwd, dest, srcNode.content) ? true : 'cp: error';
+            },
+
+            mv(cwd, src, dest) {
+                const srcPath = this.resolve(cwd, src);
+                const srcNode = this.getNode(srcPath);
+                if(!srcNode) return 'mv: source not found';
+                
+                // Delete old ref
+                const parent = this.getNode(this.getParent(srcPath));
+                parent.children = parent.children.filter(c => c !== srcPath.split('/').pop());
+                delete this.data[srcPath];
+
+                // Create new ref
+                const destPath = this.resolve(cwd, dest);
+                // Simple rename logic
+                const newParentPath = this.getParent(destPath);
+                const newParent = this.getNode(newParentPath);
+                if(newParent) {
+                    newParent.children.push(destPath.split('/').pop());
+                    this.data[destPath] = srcNode;
+                    this.save();
+                    return true;
+                }
+                return 'mv: target invalid';
+            }
+        };
+
+        /* --- WINDOW MANAGER --- */
+        const WM = {
+            windows: [],
+            zIndex: 100,
+            dragTarget: null,
+            dragOffset: {x:0, y:0},
+
+            init() {
+                window.addEventListener('mousemove', (e) => {
+                    if (this.dragTarget) {
+                        const win = document.getElementById(this.dragTarget);
+                        win.style.left = (e.clientX - this.dragOffset.x) + 'px';
+                        win.style.top = (e.clientY - this.dragOffset.y) + 'px';
+                    }
+                });
+                window.addEventListener('mouseup', () => { this.dragTarget = null; document.body.style.cursor = 'default'; });
+            },
+
+            create(config) {
+                const id = 'win-' + Date.now();
+                this.zIndex++;
+                const el = document.createElement('div');
+                el.className = 'window open active';
+                el.id = id;
+                el.style.width = (config.width || 700) + 'px';
+                el.style.height = (config.height || 450) + 'px';
+                el.style.zIndex = this.zIndex;
+                el.style.left = (Math.random() * 50 + 50) + 'px';
+                el.style.top = (Math.random() * 50 + 50) + 'px';
+
+                el.innerHTML = `
+                    <div class="title-bar" onmousedown="WM.startDrag(event, '${id}')">
+                        <div class="win-title">${config.icon || ''} ${config.title}</div>
+                        <div class="win-controls">
+                            <div class="ctrl-btn min" onclick="WM.minimize('${id}')"></div>
+                            <div class="ctrl-btn max" onclick="WM.maximize('${id}')"></div>
+                            <div class="ctrl-btn close" onclick="WM.close('${id}')"></div>
+                        </div>
+                    </div>
+                    <div class="win-content">${config.content}</div>
+                `;
+                
+                el.addEventListener('mousedown', () => WM.focus(id));
+                document.getElementById('window-area').appendChild(el);
+                this.windows.push({ id, app: config.app, ...config });
+                this.updateDock(config.app, true);
+                if(config.onLoad) config.onLoad(id);
+                return id;
+            },
+
+            focus(id) {
+                const el = document.getElementById(id);
+                if(el) {
+                    this.zIndex++;
+                    el.style.zIndex = this.zIndex;
+                    document.querySelectorAll('.window').forEach(w => w.classList.remove('active'));
+                    el.classList.add('active');
+                    const winData = this.windows.find(w => w.id === id);
+                    if(winData) document.getElementById('global-menu').innerText = winData.title;
+                }
+            },
+
+            close(id) {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.classList.remove('open');
+                    setTimeout(() => el.remove(), 200);
+                    const winData = this.windows.find(w => w.id === id);
+                    this.windows = this.windows.filter(w => w.id !== id);
+                    const stillRunning = this.windows.some(w => w.app === winData.app);
+                    this.updateDock(winData.app, stillRunning);
+                }
+            },
+
+            minimize(id) { document.getElementById(id).classList.remove('open'); document.getElementById(id).classList.add('minimized'); },
+            restore(id) { const el = document.getElementById(id); el.classList.remove('minimized'); el.classList.add('open'); WM.focus(id); },
+
+            startDrag(e, id) {
+                if(e.target.closest('.win-controls')) return;
+                this.focus(id);
+                this.dragTarget = id;
+                const win = document.getElementById(id);
+                const rect = win.getBoundingClientRect();
+                this.dragOffset.x = e.clientX - rect.left;
+                this.dragOffset.y = e.clientY - rect.top;
+                document.body.style.cursor = 'grabbing';
+            },
+
+            updateDock(appName, running) {
+                document.querySelectorAll('.dock-item').forEach(item => {
+                    if(item.title.toLowerCase() === appName) {
+                        if(running) item.classList.add('running'); else item.classList.remove('running');
+                    }
+                });
+            },
+            
+            dockClick(appName) {
+                const wins = this.windows.filter(w => w.app === appName);
+                if(wins.length > 0) {
+                    const last = wins[wins.length-1];
+                    const el = document.getElementById(last.id);
+                    if(el.classList.contains('minimized')) this.restore(last.id);
+                    else if(el.classList.contains('active')) this.minimize(last.id);
+                    else this.focus(last.id);
+                } else { Apps.open(appName); }
+            }
+        };
+
+        /* --- APPS LOGIC --- */
+        const Apps = {
+            launch(appName) { WM.dockClick(appName); },
+            open(appName, args = {}) {
+                if(appName === 'terminal') this.spawnTerminal();
+                if(appName === 'dolphin') this.spawnDolphin(args.path || '/home/garuda');
+                if(appName === 'kate') this.spawnKate(args.file || null);
+            },
+
+            spawnTerminal() {
+                let cwd = '/home/garuda';
+                let user = 'garuda';
+                let hostname = 'cloud-vm';
+                const renderPrompt = () => {
+                    const displayPath = cwd.replace('/home/garuda', '~');
+                    return `<span style="color:var(--term-red)">${user}</span><span style="color:#bd93f9">@${hostname}</span> <span style="color:#8be9fd">${displayPath}</span> <span style="color:#50fa7b">➜</span>`;
+                };
+
+                WM.create({
+                    title: 'Alacritty', icon: '<i class="fas fa-terminal" style="color:#50fa7b"></i>', app: 'terminal',
+                    content: `
+                        <div class="terminal-wrap" onclick="this.querySelector('input').focus()">
+                            <div class="output"><div style="margin-bottom:10px; color:#666">Garuda Linux Cloud - Connected to Firebase</div></div>
+                            <div class="cmd-line"><div class="prompt-html">${renderPrompt()}</div><input type="text" class="cmd-input" spellcheck="false" autocomplete="off"></div>
+                        </div>
+                    `,
+                    onLoad: (id) => {
+                        const win = document.getElementById(id);
+                        const input = win.querySelector('input');
+                        const output = win.querySelector('.output');
+                        const promptHtml = win.querySelector('.prompt-html');
+                        input.focus();
+                        input.addEventListener('keydown', (e) => {
+                            if(e.key === 'Enter') {
+                                const val = input.value.trim();
+                                output.innerHTML += `<div>${promptHtml.innerHTML} ${val}</div>`;
+                                if(val) {
+                                    const args = val.split(' ');
+                                    const cmd = args[0];
+                                    let res = '';
+                                    switch(cmd) {
+                                        case 'pwd': res = cwd; break;
+                                        case 'ls': 
+                                            const files = FS.ls(cwd);
+                                            if(files) res = files.map(f => `<span style="margin-right:15px;color:${FS.getNode(FS.resolve(cwd,f)).type==='dir'?'#8be9fd':'#f8f8f2'}">${f}</span>`).join('');
+                                            break;
+                                        case 'cd':
+                                            if(!args[1]) args[1] = '~';
+                                            const target = FS.resolve(cwd, args[1]);
+                                            if(FS.getNode(target)?.type === 'dir') { cwd = target; promptHtml.innerHTML = renderPrompt(); } else res = `cd: no such dir`;
+                                            break;
+                                        case 'mkdir': FS.mkdir(cwd, args[1]) ? null : res='failed'; break;
+                                        case 'touch': FS.touch(cwd, args[1]) ? null : res='failed'; break;
+                                        case 'rm': FS.rm(cwd, args[1], args.includes('-r')) === true ? null : res='failed'; break;
+                                        case 'cat': 
+                                            const n = FS.getNode(FS.resolve(cwd, args[1])); 
+                                            res = n ? `<div style="white-space:pre;color:#ccc">${n.content}</div>` : 'not found'; 
+                                            break;
+                                        case 'clear': output.innerHTML = ''; break;
+                                        case 'help': res = "Cloud Connected. Try: mkdir, touch, rm, cat, ls"; break;
+                                        default: res = `command not found: ${cmd}`;
+                                    }
+                                    if(res) output.innerHTML += `<div style="margin-bottom:5px;">${res}</div>`;
+                                }
+                                input.value = '';
+                                win.querySelector('.terminal-wrap').scrollTop = win.querySelector('.terminal-wrap').scrollHeight;
+                            }
+                        });
+                    }
+                });
+            },
+
+            spawnDolphin(startPath) {
+                let currentPath = startPath;
+                const render = (container, pathBar, winId) => {
+                    container.innerHTML = ''; pathBar.innerText = currentPath;
+                    const files = FS.ls(currentPath);
+                    if(files) {
+                        files.forEach(f => {
+                            const fullPath = (currentPath==='/'?'':currentPath)+'/'+f;
+                            const node = FS.getNode(fullPath);
+                            const isDir = node.type === 'dir';
+                            const item = document.createElement('div');
+                            item.className = 'file-item';
+                            item.innerHTML = `<i class="fas ${isDir?'fa-folder':'fa-file-lines'} file-icon" style="color:${isDir?'#8be9fd':'#f8f8f2'}"></i><div class="file-name">${f}</div>`;
+                            item.ondblclick = () => { if(isDir) { currentPath = fullPath; render(container, pathBar, winId); } else Apps.open('kate', {file:fullPath}); };
+                            container.appendChild(item);
+                        });
+                    }
+                };
+                WM.create({
+                    title: 'Dolphin', icon: '<i class="fas fa-folder-open" style="color:#8be9fd"></i>', app: 'dolphin',
+                    content: `
+                        <div class="dolphin-toolbar">
+                            <div class="nav-btn back"><i class="fas fa-arrow-left"></i></div>
+                            <div class="nav-btn up"><i class="fas fa-level-up-alt"></i></div>
+                            <div class="path-bar"></div>
+                        </div>
+                        <div class="dolphin-view"></div>
+                    `,
+                    onLoad: (id) => {
+                        const win = document.getElementById(id);
+                        const container = win.querySelector('.dolphin-view');
+                        const pathBar = win.querySelector('.path-bar');
+                        win.querySelector('.back').onclick = () => { const p=FS.getParent(currentPath); if(p){currentPath=p; render(container, pathBar, id);} };
+                        win.querySelector('.up').onclick = () => { const p=FS.getParent(currentPath); if(p){currentPath=p; render(container, pathBar, id);} };
+                        render(container, pathBar, id);
+                    }
+                });
+            },
+
+            spawnKate(filePath) {
+                let content = ''; let displayTitle = 'Untitled';
+                if(filePath) { const node = FS.getNode(filePath); if(node) { content = node.content; displayTitle = filePath.split('/').pop(); } }
+                WM.create({
+                    title: displayTitle + ' — Kate', icon: '<i class="fas fa-pen" style="color:#ffb86c"></i>', app: 'kate',
+                    content: `
+                        <div style="display:flex; flex-direction:column; height:100%;">
+                            <textarea class="kate-editor" spellcheck="false">${content}</textarea>
+                            <div class="kate-status"><span>Cloud Sync Active</span><span style="cursor:pointer;" class="save-btn">SAVE (CTRL+S)</span></div>
+                        </div>
+                    `,
+                    onLoad: (id) => {
+                        const win = document.getElementById(id);
+                        const textarea = win.querySelector('textarea');
+                        const saveBtn = win.querySelector('.save-btn');
+                        const save = () => {
+                            if(filePath) {
+                                FS.touch(FS.getParent(filePath), displayTitle, textarea.value);
+                                saveBtn.innerText = "SYNCED"; setTimeout(() => saveBtn.innerText = "SAVE (CTRL+S)", 2000);
+                            }
+                        };
+                        saveBtn.onclick = save;
+                        textarea.addEventListener('keydown', (e) => { if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault(); save();} });
+                    }
+                });
+            }
+        };
+
+        // --- EXPOSE TO WINDOW (KARENA MODULE SCOPE TERTUTUP) ---
+        window.FS = FS;
+        window.WM = WM;
+        window.Apps = Apps;
+
+        // --- MAIN BOOT SEQUENCE ---
+        window.onload = async () => {
+            WM.init();
+            
+            // Clock
+            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'}); }, 1000);
+
+            // 1. Start Boot Log
+            log("Mounting filesystems...");
+            
+            // 2. Initialize Firebase & FS
+            await FS.init();
+
+            // 3. Finish Boot
+            log("Starting Display Manager...");
+            log("Welcome to Garuda Linux Cloud");
+
+            setTimeout(() => {
+                const screen = document.getElementById('boot-screen');
+                const desktop = document.getElementById('desktop');
+                screen.style.opacity = 0;
+                setTimeout(() => {
+                    screen.style.display = 'none';
+                    desktop.style.display = 'block';
+                    setTimeout(() => desktop.style.opacity = 1, 100);
+                    setTimeout(() => Apps.open('terminal'), 800);
+                }, 500);
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
