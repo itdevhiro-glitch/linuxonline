@@ -1,14 +1,26 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
+
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
+
     "system": {
       ".read": "auth != null",
       ".write": "auth != null && auth.uid === 'yQSxfhW6uTaXuIgEpNrrz9QtXi62'"
+    },
+
+    "globalChat": {
+      ".read": "auth != null",
+      "$messageId": {
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['uid','message']) && newData.child('uid').isString() && newData.child('message').isString() && newData.child('message').val().length <= 300"
+      }
     }
   }
 }

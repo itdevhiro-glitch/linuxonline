@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
 import {
   getAuth,
   onAuthStateChanged,
@@ -33,6 +34,24 @@ export const logout = () => signOut(auth);
 export const watchAuth = (callback) =>
   onAuthStateChanged(auth, callback);
 
+export function sanitizeFirebaseKey(value = "") {
+  const safe = String(value)
+    .trim()
+    .replace(/[.#$/\[\]]/g, "_")
+    .replace(/\s+/g, "_");
+
+  return safe || "untitled";
+}
+
+export function createFileNode(fileName, content = "", type = "text") {
+  return {
+    name: fileName,
+    type,
+    content,
+    updatedAt: new Date().toISOString()
+  };
+}
+
 export async function getUserDesktop(uid) {
   const snapshot = await get(ref(db, `users/${uid}`));
   return snapshot.exists() ? snapshot.val() : null;
@@ -63,11 +82,10 @@ export async function createDefaultDesktop(uid, email) {
         Desktop: {},
 
         Documents: {
-          welcome_txt: {
-            name: "welcome.txt",
-            type: "text",
-            content: "Selamat datang di Garuda Web OS."
-          }
+          welcome_txt: createFileNode(
+            "welcome.txt",
+            "Selamat datang di Garuda Web OS."
+          )
         },
 
         Downloads: {},
@@ -77,12 +95,11 @@ export async function createDefaultDesktop(uid, email) {
       },
 
       etc: {
-        os_release: {
-          name: "os-release",
-          type: "system",
-          content:
-            "NAME=Garuda Web OS\\nID=garuda-web\\nID_LIKE=arch"
-        }
+        os_release: createFileNode(
+          "os-release",
+          "NAME=Garuda Web OS\nID=garuda-web\nID_LIKE=arch",
+          "system"
+        )
       }
     },
 
@@ -102,7 +119,9 @@ export async function createDefaultDesktop(uid, email) {
       sddm_service: "active",
       bluetooth_service: "inactive",
       firebase_sync_service: "active"
-    }
+    },
+
+    games: {}
   };
 
   await set(ref(db, `users/${uid}`), payload);
@@ -121,45 +140,27 @@ export function watchUserData(uid, callback) {
   );
 }
 
-export async function getGameData(
-  uid,
-  gameId = "mmorpgTurnbase"
-) {
-  const snapshot = await get(
-    ref(db, `users/${uid}/games/${gameId}`)
-  );
+export async function getGameData(uid, gameId = "mmorpgTurnbase") {
+  const safeGameId = sanitizeFirebaseKey(gameId);
+  const snapshot = await get(ref(db, `users/${uid}/games/${safeGameId}`));
 
   return snapshot.exists() ? snapshot.val() : null;
 }
 
-export async function saveGameData(
-  uid,
-  data,
-  gameId = "mmorpgTurnbase"
-) {
-  return update(
-    ref(db, `users/${uid}/games/${gameId}`),
-    data
-  );
+export async function saveGameData(uid, data, gameId = "mmorpgTurnbase") {
+  const safeGameId = sanitizeFirebaseKey(gameId);
+
+  return update(ref(db, `users/${uid}/games/${safeGameId}`), {
+    ...data,
+    updatedAt: new Date().toISOString()
+  });
 }
 
-export function watchGameData(
-  uid,
-  callback,
-  gameId = "mmorpgTurnbase"
-) {
+export function watchGameData(uid, callback, gameId = "mmorpgTurnbase") {
+  const safeGameId = sanitizeFirebaseKey(gameId);
+
   return onValue(
-    ref(db, `users/${uid}/games/${gameId}`),
+    ref(db, `users/${uid}/games/${safeGameId}`),
     snapshot => callback(snapshot.val())
   );
-}
-
-export function sanitizeFirebaseKey(value = "") {
-  return value
-    .replaceAll(".", "_")
-    .replaceAll("#", "_")
-    .replaceAll("$", "_")
-    .replaceAll("/", "_")
-    .replaceAll("[", "_")
-    .replaceAll("]", "_");
 }

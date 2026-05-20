@@ -160,3 +160,33 @@ Versi ini sudah memakai desktop sungguhan:
 - Launcher tetap tersedia dari tombol Garuda di panel bawah
 
 Aplikasi MMORPG sudah muncul sebagai icon **Chrono Rift MMORPG** di desktop dan launcher.
+
+
+## Fix Firebase Invalid Key
+
+Firebase Realtime Database tidak menerima key yang mengandung:
+
+```txt
+. # $ / [ ]
+```
+
+Versi ini sudah diperbaiki:
+- `welcome.txt` disimpan sebagai key aman `welcome_txt`
+- Nama asli file tetap disimpan di field `name`
+- Command `touch file.txt` otomatis mengubah key menjadi aman
+- Package name dari command `pacman -S` juga disanitize
+- File manager menampilkan `name`, bukan key Firebase mentah
+
+## GitHub Pages
+
+Jika setelah push masih error lama, buka GitHub Pages pakai hard refresh:
+
+```txt
+Ctrl + Shift + R
+```
+
+Lalu pastikan domain ini ditambahkan ke Firebase Authorized Domains:
+
+```txt
+itdevhiro-glitch.github.io
+```

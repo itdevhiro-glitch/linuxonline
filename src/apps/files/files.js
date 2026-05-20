@@ -1,5 +1,19 @@
+function getDisplayName(key, value) {
+  if (value && typeof value === "object" && typeof value.name === "string") {
+    return value.name;
+  }
+
+  return key;
+}
+
+function isFolder(value) {
+  if (!value || typeof value !== "object") return false;
+  return !("content" in value) && !("type" in value);
+}
+
 export function FilesApp(container, context) {
   const fs = context.data.filesystem?.home || {};
+
   container.innerHTML = `
     <div class="files-app">
       <aside>
@@ -9,13 +23,15 @@ export function FilesApp(container, context) {
         <button>Downloads</button>
         <button>Pictures</button>
       </aside>
+
       <section>
         <h3>/home/${context.user.email}</h3>
+
         <div class="file-grid">
-          ${Object.keys(fs).map(name => `
+          ${Object.entries(fs).map(([key, value]) => `
             <div class="file-item">
-              <b>${typeof fs[name] === "object" ? "" : ""}</b>
-              <span>${name}</span>
+              <b>${isFolder(value) ? "" : ""}</b>
+              <span>${getDisplayName(key, value)}</span>
             </div>
           `).join("")}
         </div>

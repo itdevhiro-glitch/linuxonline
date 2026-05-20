@@ -1,4 +1,4 @@
-import { saveUserPatch } from "../../firebase/firebase.js";
+import { saveUserPatch, sanitizeFirebaseKey, createFileNode } from "../../firebase/firebase.js";
 
 export function TerminalApp(container, context) {
   container.innerHTML = `
@@ -87,32 +87,21 @@ UID: ${context.user.uid}`,
   }
 
 if (cmd === "touch") {
-  const filename = args.join(" ") || "untitled.txt";
+    const filename = args.join(" ") || "untitled.txt";
+    const safeKey = sanitizeFirebaseKey(filename);
 
-  const safeKey = filename
-    .replaceAll(".", "_")
-    .replaceAll("#", "_")
-    .replaceAll("$", "_")
-    .replaceAll("/", "_")
-    .replaceAll("[", "_")
-    .replaceAll("]", "_");
+    await saveUserPatch(context.user.uid, {
+      [`filesystem/home/Documents/${safeKey}`]: createFileNode(filename)
+    });
 
-  await saveUserPatch(context.user.uid, {
-    [`filesystem/home/Documents/${safeKey}`]: {
-      name: filename,
-      type: "text",
-      content: ""
-    }
-  });
-
-  return `created /home/user/Documents/${filename}`;
-}
+    return `created /home/user/Documents/${filename}`;
+  }
 
   if (cmd === "pacman" && args[0] === "-S") {
     const pkg = args[1];
     if (!pkg) return "error: no package specified";
     await saveUserPatch(context.user.uid, {
-      [`packages/${pkg}`]: true
+      [`packages/${sanitizeFirebaseKey(pkg)}`]: true
     });
     return `resolving dependencies...
 looking for conflicting packages...
