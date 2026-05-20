@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garuda Web OS Simulator</title>
+  <link rel="icon" href="./public/assets/icons/favicon.svg" />
+  <link rel="stylesheet" href="./src/styles/base.css" />
+  <link rel="stylesheet" href="./src/styles/desktop.css" />
+  <link rel="stylesheet" href="./src/styles/window.css" />
+</head>
+<body>
+  <div id="boot-screen">
+    <div class="boot-card">
+      <div class="garuda-logo">󰣇</div>
+      <h1>Garuda Web OS</h1>
+      <p>Arch based simulated desktop environment</p>
+      <div class="boot-log" id="bootLog"></div>
+    </div>
+  </div>
+
+  <main id="auth-screen" class="hidden">
+    <section class="auth-panel">
+      <div>
+        <h1>Garuda Web OS</h1>
+        <p>Login pakai Firebase Auth. Setiap UID punya desktop, file, dan settings sendiri.</p>
+      </div>
+
+      <form id="authForm">
+        <input id="email" type="email" placeholder="Email" autocomplete="email" required />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <div class="auth-actions">
+          <button type="submit">Login</button>
+          <button type="button" id="registerBtn">Register</button>
+        </div>
+      </form>
+
+      <small>Root UID: <code>yQSxfhW6uTaXuIgEpNrrz9QtXi62</code></small>
+      <p id="authMessage"></p>
+    </section>
+  </main>
+
+  <main id="desktop" class="hidden">
+    <section id="desktop-icons"></section>
+
+    <section id="window-layer"></section>
+
+    <footer id="panel">
+      <button id="launcherBtn"></button>
+      <div id="taskbar"></div>
+      <div id="tray">
+        <span id="roleBadge">user</span>
+        <span id="clock"></span>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </footer>
+
+    <nav id="launcher" class="hidden">
+      <input id="launcherSearch" placeholder="Search apps..." />
+      <div id="launcherApps"></div>
+    </nav>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
