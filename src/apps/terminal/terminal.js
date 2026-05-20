@@ -86,13 +86,27 @@ UID: ${context.user.uid}`,
     return `sudo accepted: ${args.join(" ")}`;
   }
 
-  if (cmd === "touch") {
-    const filename = args.join(" ") || "untitled.txt";
-    await saveUserPatch(context.user.uid, {
-      [`filesystem/home/Documents/${filename}`]: ""
-    });
-    return `created /home/user/Documents/${filename}`;
-  }
+if (cmd === "touch") {
+  const filename = args.join(" ") || "untitled.txt";
+
+  const safeKey = filename
+    .replaceAll(".", "_")
+    .replaceAll("#", "_")
+    .replaceAll("$", "_")
+    .replaceAll("/", "_")
+    .replaceAll("[", "_")
+    .replaceAll("]", "_");
+
+  await saveUserPatch(context.user.uid, {
+    [`filesystem/home/Documents/${safeKey}`]: {
+      name: filename,
+      type: "text",
+      content: ""
+    }
+  });
+
+  return `created /home/user/Documents/${filename}`;
+}
 
   if (cmd === "pacman" && args[0] === "-S") {
     const pkg = args[1];
