@@ -4,10 +4,18 @@ let selected = null;
 
 export function applyWallpaper(data) {
   const wallpaper = document.querySelector("#desktop-wallpaper");
+  if (!wallpaper) return;
+
   const settings = data?.settings || {};
   const value = settings.wallpaper || "linear-gradient(135deg, #070711, #261447 48%, #0e7490)";
-  if (settings.wallpaperType === "image") {
-    wallpaper.style.backgroundImage = `linear-gradient(rgba(5,5,12,.20), rgba(5,5,12,.72)), url("${value}")`;
+  const type = settings.wallpaperType || "gradient";
+
+  wallpaper.style.backgroundSize = "cover";
+  wallpaper.style.backgroundPosition = "center";
+  wallpaper.style.backgroundRepeat = "no-repeat";
+
+  if (type === "image") {
+    wallpaper.style.backgroundImage = `linear-gradient(rgba(5,5,12,.18), rgba(5,5,12,.70)), url("${value}")`;
   } else {
     wallpaper.style.backgroundImage = value;
   }

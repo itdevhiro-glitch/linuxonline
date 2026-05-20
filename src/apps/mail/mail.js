@@ -1,4 +1,6 @@
-import { sendMail, watchMailbox, watchPublicUsers } from "../../firebase/firebase.js";
+import { sendMail, watchMailbox, watchPublicUsers, saveFile, sanitizeFirebaseKey } from "../../firebase/firebase.js";
+
+let latestMails = [];
 
 export function MailApp(container, context) {
   let users = {};
@@ -31,21 +33,41 @@ export function MailApp(container, context) {
     select.innerHTML = Object.values(users)
       .filter(user => user.uid !== context.user.uid)
       .map(user => `<option value="${user.uid}">${escapeHtml(user.email)}</option>`)
-      .join("");
+      .join("") || `<option value="">No other user</option>`;
   });
 
   function loadBox(box) {
     title.textContent = box === "sent" ? "Sent Mail" : "Inbox";
     watchMailbox(context.user.uid, box, (mails) => {
-      const arr = Object.values(mails).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
-      list.innerHTML = arr.map(mail => `
+      latestMails = Object.values(mails).sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+      list.innerHTML = latestMails.map((mail, index) => `
         <article class="mail-card">
           <h3>${escapeHtml(mail.subject || "(no subject)")}</h3>
           <p><b>From:</b> ${escapeHtml(mail.fromEmail || "")}</p>
           <p><b>To:</b> ${escapeHtml(mail.toEmail || "")}</p>
           <div>${escapeHtml(mail.body || "")}</div>
+          <button data-save-mail="${index}">Save to Downloads</button>
         </article>
       `).join("") || "<p>No mail.</p>";
+
+      list.querySelectorAll("[data-save-mail]").forEach(button => {
+        button.onclick = async () => {
+          const mail = latestMails[Number(button.dataset.saveMail)];
+          const filename = `mail_${Date.now()}_${sanitizeFirebaseKey(mail.subject || "no_subject")}.txt`;
+          const content = `Subject: ${mail.subject || "(no subject)"}\nFrom: ${mail.fromEmail}\nTo: ${mail.toEmail}\n\n${mail.body || ""}`;
+          await saveFile(context.user.uid, "Downloads", filename, content, "email");
+          context.data.filesystem = context.data.filesystem || { home: {} };
+          context.data.filesystem.home = context.data.filesystem.home || {};
+          context.data.filesystem.home.Downloads = context.data.filesystem.home.Downloads || {};
+          context.data.filesystem.home.Downloads[sanitizeFirebaseKey(filename)] = {
+            name: filename,
+            type: "email",
+            content,
+            updatedAt: new Date().toISOString()
+          };
+          button.textContent = "Saved!";
+        };
+      });
     });
   }
 

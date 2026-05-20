@@ -7,6 +7,8 @@ import { MMORPGApp } from "../apps/mmorpg-turnbase/mmorpg-turnbase.js";
 import { ChatApp } from "../apps/chat/chat.js";
 import { MailApp } from "../apps/mail/mail.js";
 import { BrowserApp } from "../apps/browser/browser.js";
+import { TextEditorApp } from "../apps/text-editor/text-editor.js";
+import { CalculatorApp } from "../apps/calculator/calculator.js";
 
 export const apps = [
   { id: "kernel", name: "Kernel Center", icon: "", component: WelcomeApp, width: "900px" },
@@ -17,5 +19,7 @@ export const apps = [
   { id: "mail", name: "Web Mail", icon: "󰇮", component: MailApp, width: "900px" },
   { id: "wallpaper", name: "Wallpaper Studio", icon: "󰸉", component: WallpaperApp, width: "820px" },
   { id: "settings", name: "System Settings", icon: "", component: SettingsApp, width: "780px" },
+  { id: "text-editor", name: "Text Editor", icon: "󰈙", component: TextEditorApp, width: "850px" },
+  { id: "calculator", name: "Calculator", icon: "", component: CalculatorApp, width: "420px" },
   { id: "browser", name: "FireDragon", icon: "󰈹", component: BrowserApp, width: "900px" }
 ];
