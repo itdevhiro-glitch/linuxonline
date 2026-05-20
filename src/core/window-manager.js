@@ -1,32 +1,33 @@
-let zIndex = 20;
-let windowOffset = 0;
+let zIndex = 50;
+let offset = 0;
 
 export function openWindow(app, context) {
-  const layer = document.querySelector("#window-layer");
-  const taskbar = document.querySelector("#taskbar");
-
   const existing = document.querySelector(`[data-window-id="${app.id}"]`);
-  if (existing && !app.id.startsWith("properties-")) {
+  if (existing && !app.multi) {
     existing.classList.remove("minimized");
     existing.style.zIndex = ++zIndex;
     return;
   }
 
+  const layer = document.querySelector("#window-layer");
+  const taskbar = document.querySelector("#taskbar");
   const win = document.createElement("article");
   win.className = "window";
   win.dataset.windowId = app.id;
+  win.style.left = `${130 + offset}px`;
+  win.style.top = `${70 + offset}px`;
+  win.style.width = app.width || "820px";
+  win.style.minHeight = app.height || "500px";
   win.style.zIndex = ++zIndex;
-  win.style.left = `${150 + windowOffset}px`;
-  win.style.top = `${82 + windowOffset}px`;
-  windowOffset = (windowOffset + 28) % 160;
+  offset = (offset + 28) % 170;
 
   win.innerHTML = `
     <header class="window-titlebar">
       <span>${app.icon} ${app.name}</span>
       <div>
-        <button data-action="minimize" title="Minimize">—</button>
-        <button data-action="maximize" title="Maximize">□</button>
-        <button data-action="close" title="Close">×</button>
+        <button data-action="minimize">—</button>
+        <button data-action="maximize">□</button>
+        <button data-action="close">×</button>
       </div>
     </header>
     <section class="window-body"></section>
@@ -35,31 +36,22 @@ export function openWindow(app, context) {
   const body = win.querySelector(".window-body");
   app.component(body, context);
 
-  win.addEventListener("mousedown", () => {
-    win.style.zIndex = ++zIndex;
-  });
-
-  win.querySelector('[data-action="close"]').addEventListener("click", () => {
+  win.addEventListener("mousedown", () => win.style.zIndex = ++zIndex);
+  win.querySelector('[data-action="close"]').onclick = () => {
     win.remove();
     task.remove();
-  });
-
-  win.querySelector('[data-action="minimize"]').addEventListener("click", () => {
-    win.classList.add("minimized");
-  });
-
-  win.querySelector('[data-action="maximize"]').addEventListener("click", () => {
-    win.classList.toggle("maximized");
-  });
+  };
+  win.querySelector('[data-action="minimize"]').onclick = () => win.classList.add("minimized");
+  win.querySelector('[data-action="maximize"]').onclick = () => win.classList.toggle("maximized");
 
   layer.appendChild(win);
 
   const task = document.createElement("button");
   task.textContent = `${app.icon} ${app.name}`;
-  task.addEventListener("click", () => {
+  task.onclick = () => {
     win.classList.toggle("minimized");
     win.style.zIndex = ++zIndex;
-  });
+  };
   taskbar.appendChild(task);
 
   makeDraggable(win);
@@ -67,25 +59,22 @@ export function openWindow(app, context) {
 
 function makeDraggable(win) {
   const bar = win.querySelector(".window-titlebar");
-  let dragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+  let active = false;
+  let ox = 0;
+  let oy = 0;
 
-  bar.addEventListener("mousedown", (event) => {
-    if (event.target.closest("button")) return;
-    if (win.classList.contains("maximized")) return;
-    dragging = true;
-    offsetX = event.clientX - win.offsetLeft;
-    offsetY = event.clientY - win.offsetTop;
+  bar.addEventListener("mousedown", (e) => {
+    if (e.target.closest("button") || win.classList.contains("maximized")) return;
+    active = true;
+    ox = e.clientX - win.offsetLeft;
+    oy = e.clientY - win.offsetTop;
   });
 
-  window.addEventListener("mousemove", (event) => {
-    if (!dragging) return;
-    win.style.left = `${event.clientX - offsetX}px`;
-    win.style.top = `${event.clientY - offsetY}px`;
+  window.addEventListener("mousemove", (e) => {
+    if (!active) return;
+    win.style.left = `${e.clientX - ox}px`;
+    win.style.top = `${e.clientY - oy}px`;
   });
 
-  window.addEventListener("mouseup", () => {
-    dragging = false;
-  });
+  window.addEventListener("mouseup", () => active = false);
 }

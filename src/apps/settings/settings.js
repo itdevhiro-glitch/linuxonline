@@ -1,12 +1,16 @@
 export function SettingsApp(container, context) {
+  const settings = context.data.settings || {};
   container.innerHTML = `
     <div class="settings-app">
       <h2>System Settings</h2>
-      <p><b>Theme:</b> ${context.data.settings?.theme || "garuda-dr460nized"}</p>
-      <p><b>Wallpaper:</b> ${context.data.settings?.wallpaper || "default"}</p>
-      <p><b>Panel:</b> ${context.data.settings?.panelPosition || "bottom"}</p>
-      <p><b>Role:</b> ${context.isRoot ? "root/admin" : "standard user"}</p>
-      <p><b>UID:</b> ${context.user.uid}</p>
+      <div class="settings-grid">
+        <p><b>Theme</b><span>${settings.theme}</span></p>
+        <p><b>Accent</b><span>${settings.accent}</span></p>
+        <p><b>Wallpaper Type</b><span>${settings.wallpaperType}</span></p>
+        <p><b>Role</b><span>${context.isRoot ? "root" : "user"}</span></p>
+        <p><b>UID</b><span>${context.user.uid}</span></p>
+      </div>
+      <p>Buka Wallpaper Studio untuk custom wallpaper per user.</p>
     </div>
   `;
 }

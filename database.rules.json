@@ -10,17 +10,61 @@
       }
     },
 
+    "publicUsers": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "chatRooms": {
+      "$roomId": {
+        ".read": "auth != null",
+        "messages": {
+          "$messageId": {
+            ".write": "auth != null",
+            ".validate": "newData.hasChildren(['uid','email','message']) && newData.child('uid').val() === auth.uid && newData.child('message').isString() && newData.child('message').val().length <= 300"
+          }
+        }
+      }
+    },
+
+    "mail": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$box": {
+          "$mailId": {
+            ".write": "auth != null"
+          }
+        }
+      }
+    },
+
+    "mailIndex": {
+      ".read": false,
+      ".write": "auth != null"
+    },
+
+    "world": {
+      "chronoRift": {
+        "players": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "events": {
+          ".read": "auth != null",
+          "$eventId": {
+            ".write": "auth != null"
+          }
+        }
+      }
+    },
+
     "system": {
       ".read": "auth != null",
       ".write": "auth != null && auth.uid === 'yQSxfhW6uTaXuIgEpNrrz9QtXi62'"
-    },
-
-    "globalChat": {
-      ".read": "auth != null",
-      "$messageId": {
-        ".write": "auth != null",
-        ".validate": "newData.hasChildren(['uid','message']) && newData.child('uid').isString() && newData.child('message').isString() && newData.child('message').val().length <= 300"
-      }
     }
   }
 }

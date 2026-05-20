@@ -1,192 +1,35 @@
-# Garuda Web OS Simulator
+# Garuda Web Linux Pro
 
-Simulasi OS Linux berbasis web dengan vibe Garuda Linux / Arch. Project ini dibuat untuk dipost ke GitHub dan bisa dijalankan sebagai static web.
+GitHub-ready web Linux simulator dengan Firebase Auth + Realtime Database.
 
-## Fitur
+## Fix utama
 
-- Login dan register pakai Firebase Email/Password Auth
-- Desktop berbeda untuk setiap UID user
-- Root/admin UID: `yQSxfhW6uTaXuIgEpNrrz9QtXi62`
-- Simulasi terminal Linux
-- Simulasi command:
-  - `help`
-  - `whoami`
-  - `id`
-  - `neofetch`
-  - `ls`
-  - `pwd`
-  - `uname -a`
-  - `ip a`
-  - `systemctl status`
-  - `pacman -S nama_package`
-  - `sudo command`
-  - `touch nama_file`
-- File manager sederhana
-- Package manager sederhana
-- System monitor
-- Settings app
-- Window manager draggable/minimize/maximize
-- Firebase Realtime Database per-user
+- Login tidak stuck: tombol login/register punya loading state dan error handling.
+- Firebase key ilegal seperti `welcome.txt` sudah diubah aman menjadi key `welcome_txt`, nama asli tetap disimpan di field `name`.
+- Desktop interaktif: icon, launcher, taskbar, window draggable/minimize/maximize.
+- Wallpaper per user via link gambar di Wallpaper Studio.
+- MMORPG online realtime: player lain muncul di world map, event world realtime, save per UID.
+- Chat realtime global.
+- Internal Web Mail berbasis Firebase user list.
+- Terminal command lebih aman dengan sanitize key.
 
-## Struktur Folder
+## Firebase Setup
 
-```txt
-garuda-web-os/
-├─ index.html
-├─ firebase.json
-├─ database.rules.json
-├─ README.md
-├─ public/
-│  └─ assets/
-│     ├─ icons/
-│     └─ wallpapers/
-└─ src/
-   ├─ apps/
-   │  ├─ files/
-   │  ├─ package-manager/
-   │  ├─ settings/
-   │  ├─ system-monitor/
-   │  └─ terminal/
-   ├─ core/
-   │  ├─ boot.js
-   │  ├─ desktop.js
-   │  ├─ registry.js
-   │  └─ window-manager.js
-   ├─ firebase/
-   │  ├─ config.js
-   │  └─ firebase.js
-   └─ styles/
-      ├─ base.css
-      ├─ desktop.css
-      └─ window.css
-```
+1. Authentication → Sign-in method → enable Email/Password.
+2. Authentication → Settings → Authorized domains → tambahkan domain GitHub Pages kamu:
+   `itdevhiro-glitch.github.io`
+3. Realtime Database → Rules → paste `database.rules.json`.
+4. Deploy/push ke GitHub.
 
-## Cara Jalankan Lokal
+## Path data
 
-Karena pakai ES Module, jangan langsung buka file `index.html` kalau browser memblokir module import. Jalankan local server:
+- Desktop user: `users/{uid}`
+- Game save: `users/{uid}/games/chronoRift`
+- Online players: `world/chronoRift/players`
+- Chat: `chatRooms/global/messages`
+- Mail: `mail/{uid}/inbox` dan `mail/{uid}/sent`
+- Public user list: `publicUsers/{uid}`
 
-```bash
-python -m http.server 5500
-```
+## Catatan Wallpaper
 
-Lalu buka:
-
-```txt
-http://localhost:5500
-```
-
-## Setup Firebase
-
-1. Buka Firebase Console
-2. Masuk project `latihan-san`
-3. Aktifkan Authentication
-4. Enable provider **Email/Password**
-5. Masuk Realtime Database
-6. Paste isi `database.rules.json` ke Rules
-7. Publish rules
-
-## Deploy ke GitHub Pages
-
-Project ini static, jadi bisa dipush ke GitHub. Untuk GitHub Pages:
-
-1. Upload semua file ke repository
-2. Masuk Settings repository
-3. Pages
-4. Source: Deploy from branch
-5. Branch: `main`
-6. Folder: `/root`
-7. Save
-
-## Deploy ke Firebase Hosting
-
-```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting database
-firebase deploy
-```
-
-## Catatan Keamanan
-
-Firebase config di frontend memang boleh terlihat, tapi Rules wajib benar. Data user dikunci berdasarkan UID:
-
-```json
-".read": "auth != null && auth.uid === $uid",
-".write": "auth != null && auth.uid === $uid"
-```
-
-Root hanya UID:
-
-```txt
-yQSxfhW6uTaXuIgEpNrrz9QtXi62
-```
-
-
-## App Tambahan: Chrono Rift MMORPG
-
-Game `mmorpg_turnbase` dari upload user sudah dimasukkan sebagai aplikasi native bernama **Chrono Rift MMORPG**.
-
-Integrasi database:
-
-```txt
-users/{uid}/games/mmorpgTurnbase
-```
-
-Data yang tersimpan:
-- nickname dari input saat pertama kali membuka app
-- level
-- exp
-- gold
-- hp/mana
-- inventory
-- quest progress
-- party
-- updatedAt
-
-Karena path-nya berada di dalam `users/{uid}`, rules lama tetap aman dan otomatis per-user.
-
-
-## Desktop Interaktif
-
-Versi ini sudah memakai desktop sungguhan:
-
-- Icon aplikasi tampil langsung di desktop
-- Klik sekali untuk select
-- Double click untuk membuka aplikasi
-- Right click desktop untuk context menu
-- Window bisa digeser
-- Window bisa minimize, maximize, close
-- Taskbar menampilkan aplikasi yang terbuka
-- Launcher tetap tersedia dari tombol Garuda di panel bawah
-
-Aplikasi MMORPG sudah muncul sebagai icon **Chrono Rift MMORPG** di desktop dan launcher.
-
-
-## Fix Firebase Invalid Key
-
-Firebase Realtime Database tidak menerima key yang mengandung:
-
-```txt
-. # $ / [ ]
-```
-
-Versi ini sudah diperbaiki:
-- `welcome.txt` disimpan sebagai key aman `welcome_txt`
-- Nama asli file tetap disimpan di field `name`
-- Command `touch file.txt` otomatis mengubah key menjadi aman
-- Package name dari command `pacman -S` juga disanitize
-- File manager menampilkan `name`, bukan key Firebase mentah
-
-## GitHub Pages
-
-Jika setelah push masih error lama, buka GitHub Pages pakai hard refresh:
-
-```txt
-Ctrl + Shift + R
-```
-
-Lalu pastikan domain ini ditambahkan ke Firebase Authorized Domains:
-
-```txt
-itdevhiro-glitch.github.io
-```
+URL seperti `https://www.uhdpaper.com/...html` biasanya halaman web, bukan direct image. Kalau tidak tampil sebagai wallpaper, buka halamannya, klik kanan gambar, lalu Copy Image Address dan paste di Wallpaper Studio.

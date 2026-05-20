@@ -1,0 +1,61 @@
+.kernel-hero, .rpg-top {
+  display: flex; gap: 18px; align-items: center; justify-content: space-between;
+  padding: 20px; border-radius: 24px; border: 1px solid rgba(255,255,255,.12);
+  background: radial-gradient(circle at top left, rgba(124,58,237,.34), transparent 42%), rgba(255,255,255,.06);
+}
+.kernel-orb, .avatar {
+  width: 78px; height: 78px; display: grid; place-items: center; border-radius: 25px;
+  background: linear-gradient(135deg,#7c3aed,#06b6d4); font-size: 28px; font-weight: 800;
+}
+.dashboard-grid, .rpg-layout {
+  display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 14px;
+}
+.dashboard-grid article, .rpg-card, .settings-grid p, .wallpaper-note {
+  padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.06);
+}
+.service-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; background:#ef4444; }
+.service-dot.active { background:#22c55e; }
+
+.terminal { display:grid; grid-template-rows: 1fr auto; height: 430px; font-family:"JetBrains Mono", monospace; color:#c8ffd5; }
+.terminal-output { overflow:auto; }
+.terminal-output pre { white-space:pre-wrap; margin:0 0 8px; }
+.terminal-input { display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.1); padding-top:10px; }
+.terminal-input input { flex:1; border:0; outline:0; color:#c8ffd5; background:transparent; }
+
+.files-app, .chat-app, .mail-app { display:grid; grid-template-columns: 190px 1fr; gap:16px; min-height:430px; }
+.files-app aside, .chat-app aside, .mail-app aside { display:grid; align-content:start; gap:8px; }
+.files-app button, .chat-app button, .mail-app button, .rpg-actions button, .rpg-top button, .wallpaper-app button, .rpg-create button {
+  padding: 11px 13px; border: 0; border-radius: 13px; color:white; background: linear-gradient(135deg,#7c3aed,#06b6d4);
+}
+.file-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap:12px; }
+.file-item { text-align:center; padding:15px; border-radius:16px; background:rgba(255,255,255,.07); }
+.file-item b { display:block; font-size:30px; }
+
+.rpg-create { min-height:420px; display:grid; place-items:center; }
+.rpg-create section { width:min(520px,100%); padding:24px; border-radius:24px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); }
+.rpg-create form, .wallpaper-app form, .mail-app form { display:grid; gap:10px; }
+.rpg-create input, .rpg-create select, .wallpaper-app input, .mail-app input, .mail-app textarea, .mail-app select, .chat-app input {
+  width:100%; padding:12px 13px; border-radius:13px; border:1px solid rgba(255,255,255,.13); color:white; background:rgba(0,0,0,.22);
+}
+.rpg-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:12px 0; }
+.battle-log, #worldEvents, #worldPlayers, .chat-messages, #mailList {
+  padding:12px; border-radius:16px; background:rgba(0,0,0,.24); overflow:auto;
+}
+.battle-log { max-height:150px; }
+.stat-grid, .inventory-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.stat-grid span, .inventory-grid div, .player-online, .user-pill {
+  display:flex; justify-content:space-between; gap:10px; padding:10px; border-radius:13px; background:rgba(0,0,0,.18);
+}
+.player-online.me { outline:1px solid rgba(34,211,238,.55); }
+.chat-messages { height:340px; }
+.chat-bubble { max-width:75%; margin:0 0 10px; padding:10px 12px; border-radius:16px; background:rgba(255,255,255,.08); }
+.chat-bubble.me { margin-left:auto; background:rgba(124,58,237,.35); }
+#chatForm { display:grid; grid-template-columns:1fr auto; gap:9px; margin-top:10px; }
+.mail-card { padding:14px; border-radius:16px; background:rgba(255,255,255,.07); margin-bottom:10px; }
+.wallpaper-app { display:grid; gap:14px; }
+.preset-wallpapers { display:flex; gap:10px; flex-wrap:wrap; }
+.browser-app iframe { width:100%; height:340px; border:1px solid rgba(255,255,255,.12); border-radius:16px; background:white; }
+.browser-app form { display:grid; grid-template-columns:1fr auto; gap:10px; margin:12px 0; }
+.browser-app input { padding:12px; border-radius:13px; border:1px solid rgba(255,255,255,.13); color:white; background:rgba(0,0,0,.22); }
+.settings-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.settings-grid p { display:grid; gap:6px; }

@@ -3,54 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Garuda Web OS Simulator</title>
+  <title>Garuda Web Linux Pro</title>
   <link rel="icon" href="./public/assets/icons/favicon.svg" />
   <link rel="stylesheet" href="./src/styles/base.css" />
   <link rel="stylesheet" href="./src/styles/desktop.css" />
   <link rel="stylesheet" href="./src/styles/window.css" />
+  <link rel="stylesheet" href="./src/styles/apps.css" />
 </head>
 <body>
-  <div id="boot-screen">
-    <div class="boot-card">
-      <div class="garuda-logo">󰣇</div>
-      <h1>Garuda Web OS</h1>
-      <p>Arch based simulated desktop environment</p>
-      <div class="boot-log" id="bootLog"></div>
+  <section id="boot-screen">
+    <div class="boot-shell">
+      <div class="boot-logo"></div>
+      <h1>Garuda Web Linux</h1>
+      <p>linux-zen-web realtime kernel</p>
+      <div id="bootLog" class="boot-log"></div>
     </div>
-  </div>
+  </section>
 
-  <main id="auth-screen" class="hidden">
-    <section class="auth-panel">
-      <div>
-        <h1>Garuda Web OS</h1>
-        <p>Login pakai Firebase Auth. Setiap UID punya desktop, file, dan settings sendiri.</p>
+  <section id="auth-screen" class="hidden">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span></span>
+        <div>
+          <h1>Garuda Web Linux</h1>
+          <p>Login email Firebase. Desktop, wallpaper, chat, mail, dan game tersimpan per akun.</p>
+        </div>
       </div>
 
       <form id="authForm">
-        <input id="email" type="email" placeholder="Email" autocomplete="email" required />
-        <input id="password" type="password" placeholder="Password" autocomplete="current-password" required />
-        <div class="auth-actions">
-          <button type="submit">Login</button>
-          <button type="button" id="registerBtn">Register</button>
-        </div>
+        <label>Email</label>
+        <input id="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+        <label>Password</label>
+        <input id="password" type="password" required autocomplete="current-password" placeholder="minimal 6 karakter" />
+        <button id="loginBtn" type="submit">Login</button>
+        <button id="registerBtn" type="button">Register</button>
       </form>
 
-      <small>Root UID: <code>yQSxfhW6uTaXuIgEpNrrz9QtXi62</code></small>
-      <p id="authMessage"></p>
-    </section>
-  </main>
+      <p id="authMessage" class="auth-message">Ready.</p>
+      <small>Root UID: yQSxfhW6uTaXuIgEpNrrz9QtXi62</small>
+    </div>
+  </section>
 
   <main id="desktop" class="hidden">
+    <div id="desktop-wallpaper"></div>
     <section id="desktop-icons"></section>
-
     <section id="window-layer"></section>
 
+    <aside id="system-widget">
+      <b>Garuda Web</b>
+      <span id="widgetRole">user</span>
+      <small id="widgetKernel">linux-zen-web</small>
+    </aside>
+
     <footer id="panel">
-      <button id="launcherBtn"></button>
+      <button id="launcherBtn" title="Application Launcher"></button>
       <div id="taskbar"></div>
       <div id="tray">
+        <span id="networkStatus">󰤨 online</span>
         <span id="roleBadge">user</span>
-        <span id="clock"></span>
+        <span id="clock">00:00</span>
         <button id="logoutBtn">Logout</button>
       </div>
     </footer>

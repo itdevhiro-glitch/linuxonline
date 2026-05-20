@@ -1,9 +1,17 @@
 import { ROOT_UID } from "./firebase/config.js";
-import { login, register, logout, watchAuth, getUserDesktop, createDefaultDesktop } from "./firebase/firebase.js";
+import {
+  login,
+  register,
+  logout,
+  watchAuth,
+  getUserDesktop,
+  createDefaultDesktop,
+  updatePresence
+} from "./firebase/firebase.js";
 import { boot } from "./core/boot.js";
 import { createDesktop } from "./core/desktop.js";
-import { apps } from "./core/registry.js";
 import { openWindow } from "./core/window-manager.js";
+import { apps } from "./core/registry.js";
 
 const bootScreen = document.querySelector("#boot-screen");
 const authScreen = document.querySelector("#auth-screen");
@@ -11,71 +19,82 @@ const desktopScreen = document.querySelector("#desktop");
 const authForm = document.querySelector("#authForm");
 const registerBtn = document.querySelector("#registerBtn");
 const authMessage = document.querySelector("#authMessage");
+const loginBtn = document.querySelector("#loginBtn");
 const logoutBtn = document.querySelector("#logoutBtn");
-const roleBadge = document.querySelector("#roleBadge");
 
-let currentUser = null;
+function setAuthLoading(isLoading, message = "Ready.") {
+  loginBtn.disabled = isLoading;
+  registerBtn.disabled = isLoading;
+  loginBtn.textContent = isLoading ? "Processing..." : "Login";
+  authMessage.textContent = message;
+}
 
-boot([
-  "Loading linux-zen simulated kernel...",
-  "Starting systemd units...",
-  "Mounting /home per Firebase UID...",
-  "Starting KWin web compositor...",
-  "Ready."
-], () => {
+boot(() => {
   bootScreen.classList.add("hidden");
   authScreen.classList.remove("hidden");
 });
 
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  authMessage.textContent = "Logging in...";
+  setAuthLoading(true, "Logging in...");
   try {
-    await login(email.value, password.value);
+    await login(email.value.trim(), password.value);
   } catch (error) {
-    authMessage.textContent = error.message;
+    setAuthLoading(false, readableAuthError(error));
   }
 });
 
 registerBtn.addEventListener("click", async () => {
-  authMessage.textContent = "Creating account...";
+  setAuthLoading(true, "Creating account...");
   try {
-    await register(email.value, password.value);
+    await register(email.value.trim(), password.value);
   } catch (error) {
-    authMessage.textContent = error.message;
+    setAuthLoading(false, readableAuthError(error));
   }
 });
 
 logoutBtn.addEventListener("click", () => logout());
 
 watchAuth(async (user) => {
-  currentUser = user;
-
   if (!user) {
     desktopScreen.classList.add("hidden");
     authScreen.classList.remove("hidden");
+    setAuthLoading(false, "Ready.");
     return;
   }
 
-  authScreen.classList.add("hidden");
-  desktopScreen.classList.remove("hidden");
+  try {
+    let data = await getUserDesktop(user.uid);
+    if (!data) data = await createDefaultDesktop(user.uid, user.email);
+    await updatePresence(user.uid, user.email);
 
-  let data = await getUserDesktop(user.uid);
-  if (!data) data = await createDefaultDesktop(user.uid, user.email);
+    const context = {
+      user,
+      data,
+      isRoot: user.uid === ROOT_UID,
+      apps
+    };
 
-  const isRoot = user.uid === ROOT_UID;
-  roleBadge.textContent = isRoot ? "root" : "user";
+    authScreen.classList.add("hidden");
+    desktopScreen.classList.remove("hidden");
+    setAuthLoading(false, "Ready.");
+    createDesktop(context);
 
-  const context = {
-    user,
-    data,
-    isRoot,
-    apps
-  };
-
-  createDesktop(context);
-
-  setTimeout(() => {
-    openWindow(apps.find(app => app.id === "welcome"), context);
-  }, 250);
+    setTimeout(() => {
+      openWindow(apps.find(app => app.id === "kernel"), context);
+    }, 250);
+  } catch (error) {
+    console.error(error);
+    setAuthLoading(false, error.message);
+    authMessage.textContent = error.message;
+  }
 });
+
+function readableAuthError(error) {
+  const code = error?.code || "";
+  if (code.includes("invalid-credential")) return "Email/password salah atau user belum terdaftar.";
+  if (code.includes("email-already-in-use")) return "Email sudah terdaftar. Klik Login.";
+  if (code.includes("weak-password")) return "Password minimal 6 karakter.";
+  if (code.includes("unauthorized-domain")) return "Domain belum ditambahkan di Firebase Authorized domains.";
+  return error?.message || "Auth error.";
+}
