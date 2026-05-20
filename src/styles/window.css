@@ -143,3 +143,228 @@
   border-radius: 14px;
   background: rgba(255,255,255,.06);
 }
+
+
+.mmorpg-app,
+.nickname-screen {
+  color: #f8f7ff;
+}
+
+.mmorpg-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 18px;
+  margin-bottom: 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, .38), transparent 40%),
+    linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.mmorpg-hero h2,
+.nickname-card h2 {
+  margin: 10px 0 6px;
+}
+
+.mmorpg-chip {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(124, 58, 237, .25);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.mmorpg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.mmorpg-card,
+.nickname-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.player-card {
+  background:
+    radial-gradient(circle at top right, rgba(6, 182, 212, .24), transparent 35%),
+    rgba(255,255,255,.07);
+}
+
+.avatar-orb {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 24px;
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+
+.stat-row,
+.package-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.battle-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.battle-actions button,
+#claimQuestBtn,
+#syncGameBtn,
+.nickname-card button,
+.mmorpg-link {
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 14px;
+  color: white;
+  text-decoration: none;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+}
+
+.battle-log {
+  max-height: 130px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.25);
+  font-size: 13px;
+}
+
+.battle-log p {
+  margin: 0 0 8px;
+}
+
+.quest-box {
+  display: grid;
+  place-items: center;
+  min-height: 90px;
+  margin: 12px 0;
+  border-radius: 18px;
+  background: rgba(0,0,0,.22);
+}
+
+.quest-box b {
+  font-size: 30px;
+}
+
+.inventory-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.inventory-grid div,
+.party-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.18);
+}
+
+.party-list {
+  display: grid;
+  gap: 10px;
+}
+
+.nickname-screen {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+.nickname-card {
+  width: min(460px, 100%);
+  background:
+    radial-gradient(circle at top, rgba(124, 58, 237, .32), transparent 38%),
+    rgba(255,255,255,.07);
+}
+
+.nickname-card form {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.nickname-card input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 14px;
+  color: white;
+  background: rgba(0,0,0,.22);
+}
+
+.mmorpg-loading {
+  padding: 20px;
+}
+
+
+.welcome-app {
+  color: #f8f7ff;
+}
+
+.welcome-banner {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, .34), transparent 40%),
+    linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.welcome-banner span {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  font-size: 34px;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+}
+
+.welcome-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.welcome-grid div {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.09);
+}
+
+.welcome-user {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.22);
+}
+
+.empty-trash,
+.properties-app {
+  padding: 18px;
+}

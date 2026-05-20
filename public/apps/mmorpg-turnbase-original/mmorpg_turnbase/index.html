@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floorbound: Turnbase MMORPG</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <section id="onboarding" class="screen active">
+      <div class="hero-card">
+        <div class="brand-mark">FB</div>
+        <p class="eyebrow">Turnbase Dungeon MMORPG</p>
+        <h1>Floorbound<br><span>Ascension</span></h1>
+        <p class="lead">Masuk ke dungeon bertingkat, kalahkan monster, farming drop item, jual-beli gear, dan naik rank dari F sampai SSS.</p>
+      </div>
+      <form id="createForm" class="panel form-panel">
+        <h2>Buat Karakter</h2>
+        <label>Nama Adventurer
+          <input id="playerName" type="text" maxlength="18" placeholder="contoh: Hiro" required />
+        </label>
+        <div class="grid-2">
+          <label>Job Utama
+            <select id="jobSelect"></select>
+          </label>
+          <label>Ras
+            <select id="raceSelect"></select>
+          </label>
+        </div>
+        <div id="choicePreview" class="choice-preview"></div>
+        <button class="primary-btn" type="submit">Mulai Dungeon</button>
+        <button id="loadBtn" class="ghost-btn" type="button">Load Save</button>
+      </form>
+    </section>
+
+    <section id="game" class="screen">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Current Adventurer</p>
+          <h2 id="charTitle">-</h2>
+        </div>
+        <nav class="tabs">
+          <button data-tab="dungeon" class="tab active">Dungeon</button>
+          <button data-tab="character" class="tab">Character</button>
+          <button data-tab="inventory" class="tab">Inventory</button>
+          <button data-tab="market" class="tab">Trade</button>
+          <button data-tab="leaderboard" class="tab">Leaderboard</button>
+        </nav>
+      </header>
+
+      <main>
+        <section id="tab-dungeon" class="tab-page active">
+          <div class="layout-2">
+            <div class="panel battle-panel">
+              <div class="floor-line">
+                <div>
+                  <p class="eyebrow">Dungeon Floor</p>
+                  <h1 id="floorLabel">Floor 1</h1>
+                </div>
+                <div id="rankBadge" class="rank-badge">F</div>
+              </div>
+              <div id="monsterCard" class="monster-card"></div>
+              <div class="bar-group">
+                <span>Player HP</span><div class="bar"><i id="playerHpBar"></i></div>
+                <span>Enemy HP</span><div class="bar danger"><i id="enemyHpBar"></i></div>
+              </div>
+              <div class="combat-actions">
+                <button id="attackBtn" class="primary-btn">Basic Attack</button>
+                <button id="skill1Btn" class="secondary-btn">Skill 1</button>
+                <button id="skill2Btn" class="secondary-btn">Skill 2</button>
+                <button id="potionBtn" class="ghost-btn">Use Potion</button>
+              </div>
+            </div>
+            <aside class="panel log-panel">
+              <h3>Battle Log</h3>
+              <div id="battleLog" class="battle-log"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="tab-character" class="tab-page">
+          <div class="layout-2">
+            <div class="panel"><h3>Status</h3><div id="statsBox" class="stats-grid"></div></div>
+            <div class="panel"><h3>Subclass Tree</h3><div id="subclassBox" class="subclass-box"></div></div>
+          </div>
+        </section>
+
+        <section id="tab-inventory" class="tab-page">
+          <div class="layout-2">
+            <div class="panel"><h3>Equipment</h3><div id="equipBox" class="equipment-box"></div></div>
+            <div class="panel"><h3>Inventory</h3><div id="inventoryBox" class="item-list"></div></div>
+          </div>
+        </section>
+
+        <section id="tab-market" class="tab-page">
+          <div class="layout-2">
+            <div class="panel"><h3>Jual Barang</h3><div id="sellBox" class="item-list"></div></div>
+            <div class="panel"><h3>Market Board</h3><div id="marketBox" class="item-list"></div></div>
+          </div>
+        </section>
+
+        <section id="tab-leaderboard" class="tab-page">
+          <div class="panel"><h3>Local Leaderboard</h3><div id="leaderboardBox"></div></div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script src="data/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/classes.js"></script>
+  <script src="js/items.js"></script>
+  <script src="js/dungeon.js"></script>
+  <script src="js/market.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

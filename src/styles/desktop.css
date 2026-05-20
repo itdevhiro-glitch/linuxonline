@@ -118,3 +118,54 @@
 .launcher-item:hover {
   background: rgba(255,255,255,.08);
 }
+
+
+/* Clickable desktop overrides */
+#desktop-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.desktop-icon {
+  position: absolute;
+  min-height: 86px;
+  pointer-events: auto;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.desktop-icon:hover {
+  transform: translateY(-2px);
+}
+
+.desktop-icon.selected {
+  border-color: rgba(125, 211, 252, .65);
+  background: rgba(125, 211, 252, .16);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, .25) inset;
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 180px;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(16, 15, 28, .94);
+  box-shadow: 0 16px 50px rgba(0,0,0,.45);
+  backdrop-filter: blur(16px);
+}
+
+.context-menu button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  text-align: left;
+  background: transparent;
+}
+
+.context-menu button:hover {
+  background: rgba(255,255,255,.09);
+}

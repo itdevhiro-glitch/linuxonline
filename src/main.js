@@ -3,6 +3,7 @@ import { login, register, logout, watchAuth, getUserDesktop, createDefaultDeskto
 import { boot } from "./core/boot.js";
 import { createDesktop } from "./core/desktop.js";
 import { apps } from "./core/registry.js";
+import { openWindow } from "./core/window-manager.js";
 
 const bootScreen = document.querySelector("#boot-screen");
 const authScreen = document.querySelector("#auth-screen");
@@ -65,10 +66,16 @@ watchAuth(async (user) => {
   const isRoot = user.uid === ROOT_UID;
   roleBadge.textContent = isRoot ? "root" : "user";
 
-  createDesktop({
+  const context = {
     user,
     data,
     isRoot,
     apps
-  });
+  };
+
+  createDesktop(context);
+
+  setTimeout(() => {
+    openWindow(apps.find(app => app.id === "welcome"), context);
+  }, 250);
 });

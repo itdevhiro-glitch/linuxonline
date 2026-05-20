@@ -120,3 +120,43 @@ Root hanya UID:
 ```txt
 yQSxfhW6uTaXuIgEpNrrz9QtXi62
 ```
+
+
+## App Tambahan: Chrono Rift MMORPG
+
+Game `mmorpg_turnbase` dari upload user sudah dimasukkan sebagai aplikasi native bernama **Chrono Rift MMORPG**.
+
+Integrasi database:
+
+```txt
+users/{uid}/games/mmorpgTurnbase
+```
+
+Data yang tersimpan:
+- nickname dari input saat pertama kali membuka app
+- level
+- exp
+- gold
+- hp/mana
+- inventory
+- quest progress
+- party
+- updatedAt
+
+Karena path-nya berada di dalam `users/{uid}`, rules lama tetap aman dan otomatis per-user.
+
+
+## Desktop Interaktif
+
+Versi ini sudah memakai desktop sungguhan:
+
+- Icon aplikasi tampil langsung di desktop
+- Klik sekali untuk select
+- Double click untuk membuka aplikasi
+- Right click desktop untuk context menu
+- Window bisa digeser
+- Window bisa minimize, maximize, close
+- Taskbar menampilkan aplikasi yang terbuka
+- Launcher tetap tersedia dari tombol Garuda di panel bawah
+
+Aplikasi MMORPG sudah muncul sebagai icon **Chrono Rift MMORPG** di desktop dan launcher.

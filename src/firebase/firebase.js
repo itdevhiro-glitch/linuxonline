@@ -90,3 +90,17 @@ export function saveUserPatch(uid, patch) {
 export function watchUserData(uid, callback) {
   return onValue(ref(db, `users/${uid}`), snapshot => callback(snapshot.val()));
 }
+
+
+export async function getGameData(uid, gameId = "mmorpgTurnbase") {
+  const snapshot = await get(ref(db, `users/${uid}/games/${gameId}`));
+  return snapshot.exists() ? snapshot.val() : null;
+}
+
+export async function saveGameData(uid, data, gameId = "mmorpgTurnbase") {
+  return update(ref(db, `users/${uid}/games/${gameId}`), data);
+}
+
+export function watchGameData(uid, callback, gameId = "mmorpgTurnbase") {
+  return onValue(ref(db, `users/${uid}/games/${gameId}`), snapshot => callback(snapshot.val()));
+}
