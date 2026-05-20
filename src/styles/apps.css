@@ -182,3 +182,436 @@
   background-position: center;
   background-color: rgba(0,0,0,.24);
 }
+
+/* ===== Expert Chrono Rift MMORPG ===== */
+.rpg-create-pro {
+  position: relative;
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.rpg-create-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, .58), transparent 34%),
+    radial-gradient(circle at 80% 15%, rgba(6, 182, 212, .42), transparent 30%),
+    radial-gradient(circle at 50% 90%, rgba(244, 114, 182, .22), transparent 34%),
+    linear-gradient(135deg, #060711, #18122f);
+  filter: saturate(1.2);
+}
+
+.rpg-create-panel {
+  position: relative;
+  width: min(760px, 94%);
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 28px;
+  background: rgba(10, 10, 22, .72);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 30px 100px rgba(0,0,0,.48);
+}
+
+.rpg-create-panel h1 {
+  margin: 12px 0 8px;
+  font-size: 42px;
+}
+
+.create-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.create-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.create-grid input,
+.create-grid select {
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  color: white;
+  background: rgba(0,0,0,.28);
+}
+
+.create-grid button {
+  grid-column: 1 / -1;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 16px;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+}
+
+.class-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.class-preview div,
+.rpg-card,
+.dungeon-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.class-preview span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+}
+
+.rpg-pro {
+  color: #f8f7ff;
+}
+
+.rpg-pro-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 22px;
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,.13);
+  box-shadow: 0 20px 70px rgba(0,0,0,.35);
+}
+
+.rpg-pro-header h2 {
+  margin: 10px 0 6px;
+  font-size: 32px;
+}
+
+.rpg-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.rpg-header-actions button,
+.rpg-tabs button,
+.battle-command-grid button,
+.dungeon-card button,
+.rpg-card button,
+.shop-grid button {
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 14px;
+  color: white;
+  background: rgba(255,255,255,.10);
+}
+
+.rpg-header-actions button:hover,
+.rpg-tabs button.active,
+.rpg-tabs button:hover,
+.battle-command-grid button:hover,
+.dungeon-card button:hover,
+.rpg-card button:hover,
+.shop-grid button:hover {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+}
+
+.rpg-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 8px;
+  overflow-x: auto;
+  border-radius: 18px;
+  background: rgba(0,0,0,.22);
+}
+
+.rpg-dashboard,
+.dungeon-grid,
+.inventory-layout,
+.market-layout,
+.world-layout,
+.quest-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.rpg-card.wide,
+.world-map-card {
+  grid-column: 1 / -1;
+}
+
+.hero-profile {
+  background:
+    radial-gradient(circle at top right, rgba(6, 182, 212, .28), transparent 42%),
+    rgba(255,255,255,.07);
+}
+
+.hero-avatar,
+.combat-avatar {
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 26px;
+  font-weight: 900;
+  font-size: 28px;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  box-shadow: 0 14px 36px rgba(0,0,0,.35);
+}
+
+.rpg-stat-grid,
+.rpg-inventory-grid,
+.shop-grid,
+.battle-command-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.battle-command-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.rpg-stat-grid span,
+.rpg-inventory-grid div {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.20);
+}
+
+.rpg-meter-label {
+  display: block;
+  margin: 10px 0 5px;
+  font-size: 13px;
+  color: rgba(255,255,255,.78);
+}
+
+.rpg-meter {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+}
+
+.rpg-meter span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #06b6d4);
+}
+
+.equipment-line,
+.item-row,
+.player-online {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  margin-bottom: 9px;
+  border-radius: 15px;
+  background: rgba(0,0,0,.22);
+  border-left: 4px solid rgba(255,255,255,.22);
+}
+
+.item-row {
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+}
+
+.rarity-F { border-color: #94a3b8 !important; }
+.rarity-E { border-color: #22c55e !important; }
+.rarity-D { border-color: #38bdf8 !important; }
+.rarity-C { border-color: #818cf8 !important; }
+.rarity-B { border-color: #c084fc !important; }
+.rarity-A { border-color: #f59e0b !important; }
+.rarity-S {
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 22px rgba(244,63,94,.18);
+}
+
+.battle-stage {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 22px;
+  margin-bottom: 14px;
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.combatant {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(0,0,0,.26);
+}
+
+.versus {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  box-shadow: 0 16px 42px rgba(0,0,0,.36);
+}
+
+.rpg-log {
+  max-height: 240px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.26);
+}
+
+.rpg-log p {
+  margin: 0 0 8px;
+}
+
+.dungeon-card {
+  min-height: 190px;
+  background-size: cover;
+  background-position: center;
+}
+
+.dungeon-card.selected {
+  outline: 2px solid rgba(34,211,238,.65);
+}
+
+.dungeon-card button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.biome-glacier {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(125,211,252,.35), transparent 34%),
+    linear-gradient(135deg, rgba(14,23,42,.94), rgba(8,47,73,.82));
+}
+
+.biome-volcano {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(249,115,22,.45), transparent 34%),
+    linear-gradient(135deg, rgba(30, 10, 10, .94), rgba(127,29,29,.82));
+}
+
+.biome-forest {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(34,197,94,.35), transparent 34%),
+    linear-gradient(135deg, rgba(5,46,22,.92), rgba(20,83,45,.82));
+}
+
+.biome-void {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(168,85,247,.45), transparent 34%),
+    linear-gradient(135deg, rgba(15,23,42,.94), rgba(49,46,129,.82));
+}
+
+.biome-celestial {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(251,191,36,.38), transparent 34%),
+    linear-gradient(135deg, rgba(30,27,75,.94), rgba(88,28,135,.82));
+}
+
+.world-map {
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(34,211,238,.24), transparent 12%),
+    radial-gradient(circle at 70% 60%, rgba(168,85,247,.26), transparent 14%),
+    radial-gradient(circle at 50% 50%, rgba(244,63,94,.16), transparent 18%),
+    linear-gradient(135deg, rgba(15,23,42,.95), rgba(30,41,59,.88));
+}
+
+.world-map::before {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border: 1px dashed rgba(255,255,255,.16);
+  border-radius: 18px;
+}
+
+.map-player {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+}
+
+.map-player span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(124,58,237,.86);
+  box-shadow: 0 10px 28px rgba(0,0,0,.38);
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.map-player.me span {
+  background: linear-gradient(135deg, #22c55e, #06b6d4);
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 11px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  text-align: left;
+}
+
+.rpg-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(124,58,237,.26);
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.rpg-muted {
+  color: rgba(255,255,255,.66);
+}
+
+@media (max-width: 900px) {
+  .rpg-dashboard,
+  .dungeon-grid,
+  .inventory-layout,
+  .market-layout,
+  .world-layout,
+  .quest-layout,
+  .create-grid,
+  .class-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .battle-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .versus {
+    margin: auto;
+  }
+
+  .battle-command-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .item-row {
+    grid-template-columns: 1fr;
+  }
+}

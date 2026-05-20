@@ -92,3 +92,22 @@ Contoh yang bisa dipaste langsung:
 ```html
 <a href='https://www.uhdpaper.com/2025/10/ruby-mecha-maiden-4k-wallpaper-6095i.html'><img src='https://lh3.googleusercontent.com/blogger_img_proxy/AEn0k_us0no3osWLVS8JHycy2npDAsSOJJ2Q5pHVhUrjbeY74UxM_aTQFk8PODB8uq3uHZis79pYWmlvX9cnPM8r0lpbaXGwL2q-9A7OC61e3bbKqJKkWp0UN84ASoaKuftwHa1KUd3RBuCxdM7qOZhVmjGrrKo=w919-h516-p-k-no-nu'/></a>
 ```
+
+## Expert MMORPG Update
+
+Chrono Rift Online sekarang punya halaman lengkap:
+
+- Dashboard karakter
+- Battle scene
+- Dungeon selection per biome
+- Inventory dan equipment
+- NPC shop + simulated market
+- Realtime world map
+- World events
+- Quest page
+- Leaderboard
+- Job, race, subclass
+- Boss floor setiap 10 floor
+- Rank F sampai SSS
+- Item rarity F sampai S
+- Drop equipment, consumable, dungeon material
