@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
 import {
   getDatabase,
   ref,
@@ -14,16 +15,23 @@ import {
   update,
   onValue
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
 import { firebaseConfig } from "./config.js";
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 
-export const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
-export const register = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+export const login = (email, password) =>
+  signInWithEmailAndPassword(auth, email, password);
+
+export const register = (email, password) =>
+  createUserWithEmailAndPassword(auth, email, password);
+
 export const logout = () => signOut(auth);
-export const watchAuth = (callback) => onAuthStateChanged(auth, callback);
+
+export const watchAuth = (callback) =>
+  onAuthStateChanged(auth, callback);
 
 export async function getUserDesktop(uid) {
   const snapshot = await get(ref(db, `users/${uid}`));
@@ -32,6 +40,7 @@ export async function getUserDesktop(uid) {
 
 export async function createDefaultDesktop(uid, email) {
   const now = new Date().toISOString();
+
   const payload = {
     profile: {
       uid,
@@ -41,27 +50,42 @@ export async function createDefaultDesktop(uid, email) {
       kernel: "linux-zen simulated",
       shell: "fish"
     },
+
     settings: {
       theme: "garuda-dr460nized",
       wallpaper: "default",
       panelPosition: "bottom",
       accent: "violet"
     },
+
     filesystem: {
       home: {
         Desktop: {},
+
         Documents: {
-          "welcome.txt": "Selamat datang di Garuda Web OS."
+          welcome_txt: {
+            name: "welcome.txt",
+            type: "text",
+            content: "Selamat datang di Garuda Web OS."
+          }
         },
+
         Downloads: {},
         Pictures: {},
         Music: {},
         Videos: {}
       },
+
       etc: {
-        "os-release": "NAME=Garuda Web OS\nID=garuda-web\nID_LIKE=arch"
+        os_release: {
+          name: "os-release",
+          type: "system",
+          content:
+            "NAME=Garuda Web OS\\nID=garuda-web\\nID_LIKE=arch"
+        }
       }
     },
+
     packages: {
       firefox: false,
       code: false,
@@ -70,16 +94,19 @@ export async function createDefaultDesktop(uid, email) {
       konsole: true,
       htop: true
     },
+
     processes: {},
+
     services: {
-      "NetworkManager.service": "active",
-      "sddm.service": "active",
-      "bluetooth.service": "inactive",
-      "firebase-sync.service": "active"
+      NetworkManager_service: "active",
+      sddm_service: "active",
+      bluetooth_service: "inactive",
+      firebase_sync_service: "active"
     }
   };
 
   await set(ref(db, `users/${uid}`), payload);
+
   return payload;
 }
 
@@ -88,19 +115,51 @@ export function saveUserPatch(uid, patch) {
 }
 
 export function watchUserData(uid, callback) {
-  return onValue(ref(db, `users/${uid}`), snapshot => callback(snapshot.val()));
+  return onValue(
+    ref(db, `users/${uid}`),
+    snapshot => callback(snapshot.val())
+  );
 }
 
+export async function getGameData(
+  uid,
+  gameId = "mmorpgTurnbase"
+) {
+  const snapshot = await get(
+    ref(db, `users/${uid}/games/${gameId}`)
+  );
 
-export async function getGameData(uid, gameId = "mmorpgTurnbase") {
-  const snapshot = await get(ref(db, `users/${uid}/games/${gameId}`));
   return snapshot.exists() ? snapshot.val() : null;
 }
 
-export async function saveGameData(uid, data, gameId = "mmorpgTurnbase") {
-  return update(ref(db, `users/${uid}/games/${gameId}`), data);
+export async function saveGameData(
+  uid,
+  data,
+  gameId = "mmorpgTurnbase"
+) {
+  return update(
+    ref(db, `users/${uid}/games/${gameId}`),
+    data
+  );
 }
 
-export function watchGameData(uid, callback, gameId = "mmorpgTurnbase") {
-  return onValue(ref(db, `users/${uid}/games/${gameId}`), snapshot => callback(snapshot.val()));
+export function watchGameData(
+  uid,
+  callback,
+  gameId = "mmorpgTurnbase"
+) {
+  return onValue(
+    ref(db, `users/${uid}/games/${gameId}`),
+    snapshot => callback(snapshot.val())
+  );
+}
+
+export function sanitizeFirebaseKey(value = "") {
+  return value
+    .replaceAll(".", "_")
+    .replaceAll("#", "_")
+    .replaceAll("$", "_")
+    .replaceAll("/", "_")
+    .replaceAll("[", "_")
+    .replaceAll("]", "_");
 }
